@@ -15,6 +15,8 @@ namespace Balance.Domain
 
         public ReadOnlyCollection<Component> Components => _components.AsReadOnly();
 
+        public decimal CurrentValue => _components.Sum(c => c.Difference);
+
         public Balance(decimal interest, decimal principal, DateTime operationDate, DateTime bookingDate)
         {
             Id = Guid.CreateVersion7();
