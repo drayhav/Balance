@@ -53,6 +53,15 @@ namespace Balance.Domain
             // Need to add a logic to check whether that transaction happened in the past and we need to compensate potential transactions (interests?) that happened after it
             // and calculate remaining interests.
 
+            // Having fun with new syntax, logic is probably totally wrong here :)
+            if (_transactions.Where(t => t.OperationDate > operationDate && t.TransactionType == TransactionType.Interest) is var toBeCompensated && toBeCompensated.Any())
+            {
+                foreach (var transactionToCompensate in toBeCompensated)
+                {
+                    CompensateTransaction(transactionToCompensate.OriginId, operationDate);
+                }
+            }
+
             var strategy = TransactionStrategyFactory.GetStrategy(transactionType);
             strategy.Execute(this, _transactions, originId, value, operationDate, bookingDate);
         }
