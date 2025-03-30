@@ -50,13 +50,14 @@ namespace Balance.Domain
             {
                 _transactions.Add(new Transaction(originId, transactionType, value, EntrySide.Credit, DateTime.UtcNow, DateTime.UtcNow));
 
+                // Allocate interest and principal amounts.
                 decimal interestAmount = value * 0.8m;
                 decimal principalAmount = value * 0.2m;
 
                 var interestComponent = _components.First(c => c.ComponentType == ComponentType.Interest);
                 var principalComponent = _components.First(c => c.ComponentType == ComponentType.Principal);
 
-                // Allocate interest amount
+                // If the interest amount is higher than the interest component, allocate the difference to the principal component.
                 if (interestAmount + interestComponent.Difference > 0)
                 {
                     var difference = interestAmount + interestComponent.Difference;
@@ -64,7 +65,7 @@ namespace Balance.Domain
                     principalAmount += difference;
                 }
 
-                // Allocate principal amount
+                // If the principal amount is higher than the principal component, allocate the difference to the overpayment component.
                 if (principalAmount + principalComponent.Difference > 0)
                 {
                     var overpaymentAmount = principalAmount + principalComponent.Difference;
