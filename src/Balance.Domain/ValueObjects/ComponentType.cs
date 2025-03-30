@@ -10,7 +10,7 @@ namespace Balance.Domain.ValueObjects
         {
             if (!Enum.TryParse<AvailableTypes>(name, out _))
             {
-                throw new InvalidComponentTypeException(name);
+                throw new ComponentExceptions.InvalidComponentTypeException(name);
             }
 
             _name = name;

@@ -37,7 +37,7 @@ namespace Balance.Domain
         {
             if (_components.Any(c => c.ComponentType == componentType))
             {
-                throw new InvalidOperationException($"Component {componentType} already exists");
+                throw new ComponentExceptions.ComponentAlreadyExistsException(componentType);
             }
 
             _components.Add(new Component(componentType));
@@ -47,7 +47,7 @@ namespace Balance.Domain
         {
             if (_transactions.Any(t => t.OriginId == originId))
             {
-                throw new TransactionAlreadyExistsException(originId);
+                throw new TransactionExceptions.TransactionAlreadyExistsException(originId);
             }
 
             // Need to add a logic to check whether that transaction happened in the past and we need to compensate potential transactions (interests?) that happened after it
@@ -61,7 +61,7 @@ namespace Balance.Domain
         {
             if (_transactions.Any(t => t.OriginId == originId && t.TransactionType == TransactionType.Compensation))
             {
-                throw new TransactionIsAlreadyCompensatedException(originId);
+                throw new TransactionExceptions.TransactionIsAlreadyCompensatedException(originId);
             }
 
             // Need to add a logic that will handle compensating also other transactions that happened after the compensation date (?)

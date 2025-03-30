@@ -8,7 +8,7 @@ namespace Balance.Domain.ValueObjects
         {
             if (value < 0)
             {
-                throw new TransactionValueMustBeGreaterThanException(value);
+                throw new TransactionExceptions.TransactionValueMustBeGreaterThanException(value);
             }
 
             OriginId = originId;

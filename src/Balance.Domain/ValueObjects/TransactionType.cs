@@ -11,7 +11,7 @@ namespace Balance.Domain.ValueObjects
         {
             if (!Enum.TryParse<AvailableTypes>(name, out _))
             {
-                throw new InvalidTransactionTypeException(name);
+                throw new TransactionExceptions.InvalidTransactionTypeException(name);
             }
 
             _name = name;

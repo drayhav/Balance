@@ -17,10 +17,10 @@ namespace Balance.Domain.Services
 
             // Compensate components
             var interestComponent = balance.Components.FirstOrDefault(c => c.ComponentType == ComponentType.Interest) 
-                ?? throw new ComponentNotFoundException(ComponentType.Interest);
+                ?? throw new ComponentExceptions.ComponentNotFoundException(ComponentType.Interest);
 
             var principalComponent = balance.Components.FirstOrDefault(c => c.ComponentType == ComponentType.Principal)
-                ?? throw new ComponentNotFoundException(ComponentType.Principal);
+                ?? throw new ComponentExceptions.ComponentNotFoundException(ComponentType.Principal);
 
             var interestEntries = interestComponent.Entries.Where(e => e.OriginId == originId).ToList();
             var principalEntries = principalComponent.Entries.Where(e => e.OriginId == originId).ToList();
