@@ -1,4 +1,5 @@
-﻿using Balance.Domain.ValueObjects;
+﻿using Balance.Domain.Factories;
+using Balance.Domain.ValueObjects;
 using System.Collections.ObjectModel;
 
 namespace Balance.Domain
@@ -46,75 +47,14 @@ namespace Balance.Domain
 
         public void RegisterTransaction(Guid originId, TransactionType transactionType, decimal value, DateTime operationDate, DateTime bookingDate)
         {
-            if (transactionType == TransactionType.Payment)
-            {
-                _transactions.Add(new Transaction(originId, transactionType, value, EntrySide.Credit, DateTime.UtcNow, DateTime.UtcNow));
-
-                // Allocate interest and principal amounts.
-                decimal interestAmount = value * 0.8m;
-                decimal principalAmount = value * 0.2m;
-
-                var interestComponent = _components.First(c => c.ComponentType == ComponentType.Interest);
-                var principalComponent = _components.First(c => c.ComponentType == ComponentType.Principal);
-
-                // If the interest amount is higher than the interest component, allocate the difference to the principal component.
-                if (interestAmount + interestComponent.Difference > 0)
-                {
-                    var difference = interestAmount + interestComponent.Difference;
-                    interestAmount -= difference;
-                    principalAmount += difference;
-                }
-
-                // If the principal amount is higher than the principal component, allocate the difference to the overpayment component.
-                if (principalAmount + principalComponent.Difference > 0)
-                {
-                    var overpaymentAmount = principalAmount + principalComponent.Difference;
-                    principalAmount -= overpaymentAmount;
-
-                    var overpaymentComponent = _components.FirstOrDefault(c => c.ComponentType == ComponentType.Overpayment);
-                    if (overpaymentComponent == null)
-                    {
-                        CreateComponent(ComponentType.Overpayment);
-                        overpaymentComponent = _components.First(c => c.ComponentType == ComponentType.Overpayment);
-                    }
-
-                    overpaymentComponent.AddEntry(originId, EntrySide.Credit, overpaymentAmount, operationDate, bookingDate);
-                }
-
-                interestComponent.AddEntry(originId, EntrySide.Credit, interestAmount, operationDate, bookingDate);
-                principalComponent.AddEntry(originId, EntrySide.Credit, principalAmount, operationDate, bookingDate);
-            }
+            var strategy = TransactionStrategyFactory.GetStrategy(transactionType);
+            strategy.Execute(this, _transactions, originId, value, operationDate, bookingDate);
         }
 
         public void CompensateTransaction(Guid originId, DateTime compensationDate)
         {
-            var transaction = _transactions.FirstOrDefault(t => t.OriginId == originId);
-
-            if (transaction == null)
-            {
-                throw new InvalidOperationException("Transaction not found");
-            }
-
-            // Compensate transaction
-            _transactions.Add(new Transaction(originId: originId, transactionType: TransactionType.Compensation, value: transaction.Value, entrySide: transaction.EntrySide.Opposite(),
-                DateTime.UtcNow, DateTime.UtcNow));
-
-            // Compensate components
-            var interestComponent = _components.First(c => c.ComponentType == ComponentType.Interest);
-            var principalComponent = _components.First(c => c.ComponentType == ComponentType.Principal);
-
-            var interestEntries = interestComponent.Entries.Where(e => e.OriginId == originId).ToList();
-            var principalEntries = principalComponent.Entries.Where(e => e.OriginId == originId).ToList();
-
-            foreach (var interestEntry in interestEntries)
-            {
-                interestComponent.AddEntry(originId, interestEntry.EntrySide.Opposite(), interestEntry.Value, DateTime.UtcNow, DateTime.UtcNow);
-            }
-
-            foreach (var principalEntry in principalEntries)
-            {
-                principalComponent.AddEntry(originId, principalEntry.EntrySide.Opposite(), principalEntry.Value, DateTime.UtcNow, DateTime.UtcNow);
-            }
+            var strategy = TransactionStrategyFactory.GetStrategy(transactionType: TransactionType.Compensation);
+            strategy.Execute(this, _transactions, originId, value: 0, operationDate: compensationDate, bookingDate: compensationDate);
         }
-    }
+    }    
 }

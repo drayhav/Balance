@@ -27,9 +27,9 @@ app.MapGet("/balances", () =>
     balance.RegisterTransaction(paymentOriginGuid, TransactionType.Payment, 100, DateTime.UtcNow, DateTime.UtcNow);
     balance.CompensateTransaction(paymentOriginGuid, DateTime.UtcNow);
 
-    // Add a transaction that will result with an overpayment.
-    var overpaymentOriginGuid = Guid.CreateVersion7();
-    balance.RegisterTransaction(overpaymentOriginGuid, TransactionType.Payment, 2000, DateTime.UtcNow, DateTime.UtcNow);
+    // Add transactions that will result with an overpayment.
+    balance.RegisterTransaction(Guid.CreateVersion7(), TransactionType.Payment, 2000, DateTime.UtcNow, DateTime.UtcNow);
+    balance.RegisterTransaction(Guid.CreateVersion7(), TransactionType.Payment, 1000, DateTime.UtcNow, DateTime.UtcNow);
 
     return Results.Ok();
 })
