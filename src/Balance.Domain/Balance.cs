@@ -50,8 +50,8 @@ namespace Balance.Domain
                 throw new TransactionAlreadyExistsException(originId);
             }
 
-            // Need to add a logic if that transaction happened in the past and we need to compensate potential things that happened after it
-            // And calculate remaining interests.
+            // Need to add a logic to check whether that transaction happened in the past and we need to compensate potential transactions (interests?) that happened after it
+            // and calculate remaining interests.
 
             var strategy = TransactionStrategyFactory.GetStrategy(transactionType);
             strategy.Execute(this, _transactions, originId, value, operationDate, bookingDate);
@@ -65,6 +65,7 @@ namespace Balance.Domain
             }
 
             // Need to add a logic that will handle compensating also other transactions that happened after the compensation date (?)
+            // Possibly only of interest type, but need to check that.
 
             var strategy = TransactionStrategyFactory.GetStrategy(transactionType: TransactionType.Compensation);
             strategy.Execute(this, _transactions, originId, value: 0, operationDate: compensationDate, bookingDate: compensationDate);
