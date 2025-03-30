@@ -6,7 +6,7 @@ namespace Balance.Domain.ValueObjects
     {
         public Transaction(Guid originId, TransactionType transactionType, decimal value, EntrySide entrySide, DateTime operationDate, DateTime bookingDate)
         {
-            if (value <= 0)
+            if (value < 0)
             {
                 throw new TransactionValueMustBeGreaterThanException(value);
             }
