@@ -12,6 +12,8 @@ namespace Balance.Domain.ValueObjects
 
         public decimal TotalCredit => _entries.Where(e => e.EntrySide == EntrySide.Credit).Sum(e => e.Value);
 
+        public decimal Difference => TotalCredit - TotalDebit;
+
         public void AddEntry(Guid originId, EntrySide entrySide, decimal value, DateTime operationDate, DateTime bookingDate)
         {
             _entries.Add(new Entry(originId, entrySide, value, operationDate, bookingDate));

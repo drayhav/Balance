@@ -30,6 +30,8 @@ namespace Balance.Domain
 
             interestComponent.AddEntry(Id, EntrySide.Debit, interest, operationDate, bookingDate);
             principalComponent.AddEntry(Id, EntrySide.Debit, principal, operationDate, bookingDate);
+
+            _transactions.Add(new Transaction(originId: Id, transactionType: TransactionType.Opening, value: interest + principal, EntrySide.Debit, operationDate, bookingDate));
         }
 
         public void CreateComponent(ComponentType componentType)
@@ -54,14 +56,32 @@ namespace Balance.Domain
                 var interestComponent = _components.First(c => c.ComponentType == ComponentType.Interest);
                 var principalComponent = _components.First(c => c.ComponentType == ComponentType.Principal);
 
-                if (interestAmount > interestComponent.TotalDebit)
+                // Allocate interest amount
+                if (interestAmount + interestComponent.Difference > 0)
                 {
-                    principalAmount += (interestAmount - interestComponent.TotalDebit);
-                    interestAmount = interestComponent.TotalDebit;
+                    var difference = interestAmount + interestComponent.Difference;
+                    interestAmount -= difference;
+                    principalAmount += difference;
                 }
 
-                interestComponent.AddEntry(originId, EntrySide.Debit, interestAmount, operationDate, bookingDate);
-                principalComponent.AddEntry(originId, EntrySide.Debit, principalAmount, operationDate, bookingDate);
+                // Allocate principal amount
+                if (principalAmount + principalComponent.Difference > 0)
+                {
+                    var overpaymentAmount = principalAmount + principalComponent.Difference;
+                    principalAmount -= overpaymentAmount;
+
+                    var overpaymentComponent = _components.FirstOrDefault(c => c.ComponentType == ComponentType.Overpayment);
+                    if (overpaymentComponent == null)
+                    {
+                        CreateComponent(ComponentType.Overpayment);
+                        overpaymentComponent = _components.First(c => c.ComponentType == ComponentType.Overpayment);
+                    }
+
+                    overpaymentComponent.AddEntry(originId, EntrySide.Credit, overpaymentAmount, operationDate, bookingDate);
+                }
+
+                interestComponent.AddEntry(originId, EntrySide.Credit, interestAmount, operationDate, bookingDate);
+                principalComponent.AddEntry(originId, EntrySide.Credit, principalAmount, operationDate, bookingDate);
             }
         }
 

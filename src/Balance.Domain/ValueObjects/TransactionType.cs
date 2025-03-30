@@ -17,6 +17,7 @@
         public static TransactionType Payment => new TransactionType(nameof(AvailableTypes.Payment));
         public static TransactionType Interest => new TransactionType(nameof(AvailableTypes.Interest));
         public static TransactionType Compensation => new TransactionType(nameof(AvailableTypes.Compensation));
+        public static TransactionType Opening => new TransactionType(nameof(AvailableTypes.Opening));
 
         public static IEnumerable<string> GetAvailableTypes()
         {
@@ -30,6 +31,7 @@
 
         private enum AvailableTypes
         {
+            Opening,
             Payment,
             Interest,
             Compensation

@@ -18,6 +18,8 @@
 
         public static ComponentType Principal => new ComponentType(nameof(AvailableTypes.Principal));
 
+        public static ComponentType Overpayment => new ComponentType(nameof(AvailableTypes.Overpayment));
+
         public static IEnumerable<string> GetAvailableTypes()
         {
             return Enum.GetNames(typeof(AvailableTypes));
@@ -36,7 +38,8 @@
         private enum AvailableTypes
         {
             Interest,
-            Principal
+            Principal,
+            Overpayment
         }
     }
 }

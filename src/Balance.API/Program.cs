@@ -22,12 +22,14 @@ app.MapGet("/balances", () =>
 {
     var balance = new Balance.Domain.Balance(interest: 800, principal: 200, operationDate: DateTime.UtcNow, bookingDate: DateTime.UtcNow);
 
+    // Add a transaction and then compensate it.
     var paymentOriginGuid = Guid.CreateVersion7();
     balance.RegisterTransaction(paymentOriginGuid, TransactionType.Payment, 100, DateTime.UtcNow, DateTime.UtcNow);
-
-    var correctionOriginGuid = Guid.CreateVersion7();
     balance.CompensateTransaction(paymentOriginGuid, DateTime.UtcNow);
 
+    // Add a transaction that will result with an overpayment.
+    var overpaymentOriginGuid = Guid.CreateVersion7();
+    balance.RegisterTransaction(overpaymentOriginGuid, TransactionType.Payment, 2000, DateTime.UtcNow, DateTime.UtcNow);
 
     return Results.Ok();
 })
