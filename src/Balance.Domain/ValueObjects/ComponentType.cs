@@ -1,4 +1,6 @@
-﻿namespace Balance.Domain.ValueObjects
+﻿using Balance.Domain.Exceptions.ValueObjects;
+
+namespace Balance.Domain.ValueObjects
 {
     public record ComponentType
     {
@@ -8,7 +10,7 @@
         {
             if (!Enum.TryParse<AvailableTypes>(name, out _))
             {
-                throw new ArgumentException($"Invalid component type: {name}. Valid types are: {string.Join(", ", GetAvailableTypes())}");
+                throw new InvalidComponentTypeException(name);
             }
 
             _name = name;

@@ -1,4 +1,7 @@
-﻿namespace Balance.Domain.ValueObjects
+﻿using Balance.Domain.Exceptions;
+using Balance.Domain.Exceptions.ValueObjects;
+
+namespace Balance.Domain.ValueObjects
 {
     public record TransactionType
     {
@@ -8,7 +11,7 @@
         {
             if (!Enum.TryParse<AvailableTypes>(name, out _))
             {
-                throw new ArgumentException($"Invalid transaction type: {name}. Valid types are: {string.Join(", ", GetAvailableTypes())}");
+                throw new InvalidTransactionTypeException(name);
             }
 
             _name = name;

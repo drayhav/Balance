@@ -1,4 +1,6 @@
-﻿namespace Balance.Domain.ValueObjects
+﻿using Balance.Domain.Exceptions.ValueObjects;
+
+namespace Balance.Domain.ValueObjects
 {
     public record EntrySide
     {
@@ -8,7 +10,7 @@
         {
             if (!Enum.TryParse<AvailableTypes>(name, out _))
             {
-                throw new ArgumentException($"Invalid entry side: {name}. Valid types are: {string.Join(", ", GetAvailableTypes())}");
+                throw new InvalidEntrySideException(name);
             }
 
             _name = name;
