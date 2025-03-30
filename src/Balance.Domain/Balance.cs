@@ -1,4 +1,5 @@
-﻿using Balance.Domain.Factories;
+﻿using Balance.Domain.Exceptions.ValueObjects;
+using Balance.Domain.Factories;
 using Balance.Domain.ValueObjects;
 using System.Collections.ObjectModel;
 
@@ -44,8 +45,12 @@ namespace Balance.Domain
 
         public void RegisterTransaction(Guid originId, TransactionType transactionType, decimal value, DateTime operationDate, DateTime bookingDate)
         {
-            // Need to add a logic that will check if the transaction is already registered
-            // Also need to add a logic if that transaction happened in the past and we need to compensate potential things that happened after it
+            if (_transactions.Any(t => t.OriginId == originId))
+            {
+                throw new TransactionAlreadyExistsException(originId);
+            }
+
+            // Need to add a logic if that transaction happened in the past and we need to compensate potential things that happened after it
             // And calculate remaining interests.
 
             var strategy = TransactionStrategyFactory.GetStrategy(transactionType);
@@ -54,11 +59,15 @@ namespace Balance.Domain
 
         public void CompensateTransaction(Guid originId, DateTime compensationDate)
         {
-            // Need to add a logic that will check if the transaction is already compensated
-            // Also need to add a logic that will handle compensating also other transactions that happened after the compensation date (?)
+            if (_transactions.Any(t => t.OriginId == originId && t.TransactionType == TransactionType.Compensation))
+            {
+                throw new TransactionIsAlreadyCompensatedException(originId);
+            }
+
+            // Need to add a logic that will handle compensating also other transactions that happened after the compensation date (?)
 
             var strategy = TransactionStrategyFactory.GetStrategy(transactionType: TransactionType.Compensation);
             strategy.Execute(this, _transactions, originId, value: 0, operationDate: compensationDate, bookingDate: compensationDate);
         }
-    }    
+    }
 }
