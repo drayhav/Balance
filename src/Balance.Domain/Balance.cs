@@ -26,8 +26,8 @@ namespace Balance.Domain
             var interestComponent = _components.First(c => c.ComponentType == ComponentType.Interest);
             var principalComponent = _components.First(c => c.ComponentType == ComponentType.Principal);
 
-            interestComponent.AddEntry(Id, EntrySide.Debit, interest, operationDate, bookingDate);
-            principalComponent.AddEntry(Id, EntrySide.Debit, principal, operationDate, bookingDate);
+            interestComponent.AddEntry(Id, EntrySide.Credit, interest, operationDate, bookingDate);
+            principalComponent.AddEntry(Id, EntrySide.Credit, principal, operationDate, bookingDate);
 
             _transactions.Add(new Transaction(originId: Id, transactionType: TransactionType.Opening, value: interest + principal, EntrySide.Debit, operationDate, bookingDate));
         }
